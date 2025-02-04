@@ -26,6 +26,15 @@ class RecipeController extends AbstractController
     #[Route('/{id}', name: '_details', requirements: ['id' => '\d+'])]
     public function details(int $id): Response {
         $recipe = $this->recipeService->findOneById($id);
+        $this->addFlash(
+            'info',
+            "Vous aimez les {$recipe['title']}s"
+        );
+
+        dump($recipe);
+
+        //dd($recipe);
+
         return $this->render('recipe/details.html.twig', [
             'recipe' => $recipe
         ]);

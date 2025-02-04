@@ -23,7 +23,12 @@
 
 {% block body %}
     <i data-feather="circle"></i>
+
+    {{ dump(recipeList) }}
+
 <h1>Liste des {{ kind }}s</h1>
+
+    <p>Nous sommes en {{ currentYear }}</p>
 
     <img src="{{ asset('images/tajine.webp') }}">
 
