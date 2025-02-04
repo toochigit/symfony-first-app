@@ -2,92 +2,43 @@
 
 namespace App\Controller;
 
+use App\Service\RecipeService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Flex\Recipe;
 
+#[Route('/recettes', name: 'recipe')]
 class RecipeController extends AbstractController
 {
+    public function __construct(
+        private RecipeService $recipeService
+    ){}
 
-    public function getRecipeList(): array
-    {
-        return [
-            [
-                "id" => 1,
-                "title" => "Quatre quarts",
-                "ingredients" => [
-                    "sucre",
-                    "beurre",
-                    "farine",
-                    "oeufs"
-                ],
-                "kind" => "Dessert"
-            ],
-            [
-                "id" => 2,
-                "title" => "Taboulé",
-                "ingredients" => [
-                    "Semoule",
-                    "citron",
-                    "huile d'olive",
-                    "persil"
-                ],
-                "kind" => "Entrée"
-            ],
-            [
-                "id" => 3,
-                "title" => "Houmous",
-                "ingredients" => [
-                    "pois chiche",
-                    "tahin",
-                    "huile d'olive",
-                    "citron"
-                ],
-                "kind" => "Entrée"
-            ],
-            [
-                "id" => 4,
-                "title" => "Tajine",
-                "ingredients" => [
-                    "huile d'olive",
-                    "tomates",
-                    "courgettes",
-                    "oignons",
-                    "pommes de terre",
-                    "abricots secs",
-                    "olives vertes",
-                    "cumin",
-                ],
-                "kind" => "Plat"
-            ],
-
-        ];
+    #[Route('/', name: '_index')]
+    public function index(): Response {
+        return $this->render('recipe/index.html.twig', [
+            'recipeList' => $this->recipeService->getRecipeList(),
+            'kind' => 'recette',
+        ]);
     }
 
-    private function findOneById(int $id): array | null{
-        $found =  array_filter($this->getRecipeList(), static function(array $item) use ($id){
-            return $item["id"] === $id;
-        });
-
-        if($found && count($found)> 0){
-            return array_values($found)[0];
-        }
-
-        return null;
+    #[Route('/{id}', name: '_details', requirements: ['id' => '\d+'])]
+    public function details(int $id): Response {
+        $recipe = $this->recipeService->findOneById($id);
+        return $this->render('recipe/details.html.twig', [
+            'recipe' => $recipe
+        ]);
     }
 
-    private function findByKind($kind)
-    {
-        $found =  array_filter($this->getRecipeList(), static function(array $item) use ($kind){
-            return $item["kind"] === $kind;
-        });
-
-        if($found && count($found)> 0){
-            return array_values($found);
-        }
-
-        return null;
-
+    #[Route('/{kind}', name: '_by_kind')]
+    public function byKind(string $kind): Response {
+        $recipes = $this->recipeService->findByKind($kind);
+        return $this->render('recipe/index.html.twig', [
+            'recipeList' => $recipes,
+            'kind' => $kind
+        ]);
     }
+
 
 }
