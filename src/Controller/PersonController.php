@@ -37,4 +37,30 @@ final class PersonController extends AbstractController
             'person2' => $personRepository->findOneById(1),
         ]);
     }
+
+    #[Route('/person/qb', name: 'app_person_qb')]
+    public function queryBuilderTest(
+        PersonRepository $personRepository,
+    ): Response
+    {
+        $allPersons = $personRepository->getAllPersons();
+
+        return $this->render('person/qb.html.twig', [
+            'persons' => $allPersons,
+        ]);
+
+    }
+
+    #[Route('/person/by-name/{name}', name: 'app_person_by_name')]
+    public function personByName(
+        PersonRepository $personRepository,
+        string $name
+    ): Response
+    {
+        $persons = $personRepository->getPersonByLastName($name);
+
+        return $this->render('person/qb.html.twig', [
+            'persons' => $persons,
+        ]);
+    }
 }

@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <ul>
+        {% for item in pizzas %}
+            <li>
+                {{ item.id }} - {{ item.name }}
+                (
+                {% for ingredient in item.ingredients %}
+                    {{ ingredient.name }},
+                {%  endfor %}
+                )
+            </li>
+        {%  endfor %}
+    </ul>
+
+{% endblock %}
+
+{% block title %}
+
+{% endblock %}
+

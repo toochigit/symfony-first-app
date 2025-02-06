@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Pizza;
+use App\Repository\IngredientRepository;
 use App\Repository\PizzaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -74,6 +75,31 @@ final class PizzaController extends AbstractController
         }
 
         return $this->redirectToRoute('app_pizza');
+    }
+
+    #[Route('/pizza/groupby', name: 'app_pizza_groupby')]
+    function groupby(
+        PizzaRepository $repository,
+    ): Response{
+        $pizzas = $repository->getPizzasWithIngredientCount();
+        return $this->render('pizza/groupby.html.twig', [
+            'pizzas' => $pizzas,
+        ]);
+    }
+
+    #[Route('/pizza/search', name: 'app_pizza_search')]
+    function search(
+        PizzaRepository $repository,
+        IngredientRepository $ingredientRepository,
+    ): Response{
+        $ingredientList = ['Feta', 'Champignon'];
+        $ingredientIds = $ingredientRepository->getIngredientsIds($ingredientList);
+        $pizzas = $repository->getPizzasWithIngredients(
+            $ingredientIds,
+        );
+        return $this->render('pizza/with_ingredients.html.twig', [
+            'pizzas' => $pizzas,
+        ]);
     }
 }
 
