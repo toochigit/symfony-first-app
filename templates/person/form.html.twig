@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+
+{% endblock %}
+
+{% block body %}
+
+
+    {{ form(personForm) }}
+    {#
+    {{ form_start(personForm) }}
+    <div style="display:grid; grid-template-columns: 1fr 1fr; width: 800px; background: #964a50">
+        <div>
+            {{ form_row(personForm.firstName) }}
+        </div>
+
+        <div>
+            {{ form_row(personForm.lastName) }}
+
+        </div>
+    </div>
+    {{ form_rest(personForm) }}
+    {{ form_end(personForm) }}
+    #}
+{% endblock %}
+

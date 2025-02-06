@@ -5,9 +5,12 @@ namespace App\Controller;
 use App\Entity\Address;
 use App\Entity\Person;
 use App\Entity\Photo;
+use App\Form\PersonType;
 use App\Repository\PersonRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -61,6 +64,54 @@ final class PersonController extends AbstractController
 
         return $this->render('person/qb.html.twig', [
             'persons' => $persons,
+        ]);
+    }
+
+    #[Route('/person/form', name: 'app_person_form')]
+    #[Route('/person/form/{id}', name: 'app_person_form_edit')]
+    public function personForm(
+        Request $request,
+        EntityManagerInterface $manager,
+        ?Person $person = null
+    ): Response {
+
+        // Si $person et null
+        // Alors il faut créer une nouvelle personne
+        if(! $person){
+            $person = new Person();
+            $person->setActive(true);
+        }
+
+        $form = $this->createForm(PersonType::class, $person);
+        $form->add('submit', SubmitType::class);
+
+        // Traitement du formulaire
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Persistance
+            $manager->persist($person);
+            $manager->flush();
+            // Message de suucès
+            $this->addFlash('success', 'Person added successfully');
+            // Redirection
+            return $this->redirectToRoute('app_person_home');
+        }
+
+        dump($person);
+
+        return $this->render('person/form.html.twig', [
+            'personForm' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/person/', name: 'app_person_home')]
+    public function home(
+        PersonRepository $personRepository,
+    ): Response
+    {
+        return $this->render('person/home.html.twig', [
+            'persons' => $personRepository->findAll(),
         ]);
     }
 }
