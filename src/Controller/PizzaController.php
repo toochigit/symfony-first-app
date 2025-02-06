@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Pizza;
+use App\Repository\IngredientRepository;
 use App\Repository\PizzaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -43,13 +44,13 @@ final class PizzaController extends AbstractController
 
     #[Route('/pizza/delete/{id}', name: 'app_pizza_delete')]
     public function delete(
-        int                    $id,
+        int $id,
         EntityManagerInterface $entityManager,
-        PizzaRepository        $repository
+        PizzaRepository $repository
     ): Response
     {
         $pizza = $repository->findOneBy(['id' => $id]);
-        if ($pizza) {
+        if($pizza){
             $entityManager->remove($pizza);
             $entityManager->flush();
         }
@@ -59,15 +60,15 @@ final class PizzaController extends AbstractController
 
     #[Route('/pizza/update/{id}/{name}', name: 'app_pizza_update')]
     public function update(
-        int                    $id,
-        string                 $name,
+        int $id,
+        string $name,
         EntityManagerInterface $entityManager,
-        PizzaRepository        $repository
+        PizzaRepository $repository
     ): Response
     {
         $pizza = $repository->findOneBy(['id' => $id]);
 
-        if ($pizza) {
+        if($pizza){
             $pizza->setName($name);
             $entityManager->persist($pizza);
             $entityManager->flush();
@@ -77,12 +78,28 @@ final class PizzaController extends AbstractController
     }
 
     #[Route('/pizza/groupby', name: 'app_pizza_groupby')]
-    function groupBy(
+    function groupby(
         PizzaRepository $repository,
-    ): Response
-    {
-        $pizzas = $repository->getPizzaWithIngredientsCount();
-        return $this->render('pizza/groupby.html.twig', ['pizzas' => $pizzas]);
+    ): Response{
+        $pizzas = $repository->getPizzasWithIngredientCount();
+        return $this->render('pizza/groupby.html.twig', [
+            'pizzas' => $pizzas,
+        ]);
+    }
+
+    #[Route('/pizza/search', name: 'app_pizza_search')]
+    function search(
+        PizzaRepository $repository,
+        IngredientRepository $ingredientRepository,
+    ): Response{
+        $ingredientList = ['Feta', 'Champignon'];
+        $ingredientIds = $ingredientRepository->getIngredientsIds($ingredientList);
+        $pizzas = $repository->getPizzasWithIngredients(
+            $ingredientIds,
+        );
+        return $this->render('pizza/with_ingredients.html.twig', [
+            'pizzas' => $pizzas,
+        ]);
     }
 }
 

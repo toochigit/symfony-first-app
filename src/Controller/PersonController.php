@@ -41,25 +41,64 @@ final class PersonController extends AbstractController
         ]);
     }
 
-    #[Route('/person/form', name: 'app_person_form')]
-    public function form(
-        Request $request,
-        EntityManagerInterface $entityManager,
+    #[Route('/person/qb', name: 'app_person_qb')]
+    public function queryBuilderTest(
+        PersonRepository $personRepository,
     ): Response
     {
-        $person = new Person();
-        $form = $this->createForm(PersonType::class, $person);
-        $form->add('submit', submitType::class);
+        $allPersons = $personRepository->getAllPersons();
 
+        return $this->render('person/qb.html.twig', [
+            'persons' => $allPersons,
+        ]);
+
+    }
+
+    #[Route('/person/by-name/{name}', name: 'app_person_by_name')]
+    public function personByName(
+        PersonRepository $personRepository,
+        string $name
+    ): Response
+    {
+        $persons = $personRepository->getPersonByLastName($name);
+
+        return $this->render('person/qb.html.twig', [
+            'persons' => $persons,
+        ]);
+    }
+
+    #[Route('/person/form', name: 'app_person_form')]
+    #[Route('/person/form/{id}', name: 'app_person_form_edit')]
+    public function personForm(
+        Request $request,
+        EntityManagerInterface $manager,
+        ?Person $person = null
+    ): Response {
+
+        // Si $person et null
+        // Alors il faut créer une nouvelle personne
+        if(! $person){
+            $person = new Person();
+            $person->setActive(true);
+        }
+
+        $form = $this->createForm(PersonType::class, $person);
+        $form->add('submit', SubmitType::class);
+
+        // Traitement du formulaire
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($person);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Person saved');
-            return $this->redirectToRoute('app_person_form');
+            // Persistance
+            $manager->persist($person);
+            $manager->flush();
+            // Message de suucès
+            $this->addFlash('success', 'Person added successfully');
+            // Redirection
+            return $this->redirectToRoute('app_person_home');
         }
+
+        dump($person);
 
         return $this->render('person/form.html.twig', [
             'personForm' => $form->createView(),
@@ -68,8 +107,11 @@ final class PersonController extends AbstractController
 
     #[Route('/person/', name: 'app_person_home')]
     public function home(
-
-    ): Response{
-        return $this->render('person/home.html.twig');
+        PersonRepository $personRepository,
+    ): Response
+    {
+        return $this->render('person/home.html.twig', [
+            'persons' => $personRepository->findAll(),
+        ]);
     }
 }
