@@ -25,6 +25,16 @@ class PersonType extends AbstractType
             ->add('lastName', TextType::class, [
                 'label' => 'Nom de famille',
                 'attr' => ['style' => 'background: red', 'maxlength' => 12],
+                'sanitize' => true,
+            ])
+//            ->add('adress', EntityType::class, [
+//                'class' => Address::class,
+//                'multiple' => false,
+//                'expanded' => false,
+//            ])
+        ->add('address', AdresseType::class,[
+            'label' => '<h3>Créer une adresse</h3>',
+                'label_html' => true,
             ])
             //->add('valider', SubmitType::class)
         ;
@@ -36,4 +46,7 @@ class PersonType extends AbstractType
             'data_class' => Person::class,
         ]);
     }
+
+
 }
+

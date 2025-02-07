@@ -16,6 +16,13 @@ class Person
     #[ORM\Column(length: 30)]
     private ?string $firstName = null;
 
+    #[Assert\NotBlank(message: 'Nom obligatoire')]
+    #[Assert\Lenght(
+        max:30, min:3,
+        minMessage: 'Le nom ne peut faire moins de {{limit}} caractères',
+        maxMessage:'Le nom ne peut faire plus de {{limit}} caractères',
+    )]
+
     #[ORM\Column(length: 30)]
     private ?string $lastName = null;
 
