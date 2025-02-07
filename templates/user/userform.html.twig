@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    {{ form_start(userForm) }}
+
+        {{ form_errors(userForm) }}
+
+        {{ form_rest(userForm) }}
+
+    {{ form_end(userForm) }}
+
+{% endblock %}
+
+{% block title %}
+
+{% endblock %}
